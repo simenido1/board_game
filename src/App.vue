@@ -15,11 +15,16 @@ const numColumns = 20;
 const numRows = 20;
 
 function getMousePosition(event: MouseEvent) {
-  let rect = canvas.getBoundingClientRect();
-  let x = event.clientX - rect.left;
-  let y = event.clientY - rect.top;
-  console.log("Coordinate x: " + x,
-      "Coordinate y: " + y);
+  let x = event.clientX - imageCoords.startX;
+  let y = event.clientY - imageCoords.startY;
+  return {x, y};
+}
+
+function handleClick(event: MouseEvent) {
+  const clickCoords = getMousePosition(event);
+  const row = Math.ceil(clickCoords.y / (imageCoords.endY - imageCoords.startY) * numRows);
+  const col = Math.ceil(clickCoords.x / (imageCoords.endX - imageCoords.startX) * numColumns);
+  console.log(row, col);
 }
 
 function drawHorizontalLine(startX: number, endX: number, y: number) {
@@ -68,7 +73,7 @@ const drawImage = () => {
  imageCoords = drawImageScaled(image, ctx);
 
   for (let i = 1; i < numRows; i++) {
-    const yCoord = i * ctx.canvas.height / numRows;
+    const yCoord = imageCoords.startY + i * (imageCoords.endY - imageCoords.startY) / numRows;
     drawHorizontalLine(imageCoords.startX, imageCoords.endX, yCoord);
   }
 
@@ -78,7 +83,7 @@ const drawImage = () => {
   }
 
   for (let i = 1; i < numRows + 1; i++) {
-    const yCoord = (i-0.5) * ctx.canvas.height / numRows;
+    const yCoord = imageCoords.startY + (i-0.5) * (imageCoords.endY - imageCoords.startY) / numRows;
     ctx.textBaseline = "middle";
     ctx.fillText(i.toString(), imageCoords.startX, yCoord)
   }
@@ -96,7 +101,7 @@ const drawImage = () => {
 
 <template>
 <div>
-  <canvas id="canvas" @click="getMousePosition"></canvas>
+  <canvas id="canvas" @click="handleClick"></canvas>
   <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="drawImage" />
 </div>
 </template>
