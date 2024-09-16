@@ -1,10 +1,26 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
+interface ImageCoords {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+}
+
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
+let imageCoords: ImageCoords;
 
 const numColumns = 20;
 const numRows = 20;
+
+function getMousePosition(event: MouseEvent) {
+  let rect = canvas.getBoundingClientRect();
+  let x = event.clientX - rect.left;
+  let y = event.clientY - rect.top;
+  console.log("Coordinate x: " + x,
+      "Coordinate y: " + y);
+}
 
 function drawHorizontalLine(startX: number, endX: number, y: number) {
   ctx.beginPath();
@@ -20,7 +36,7 @@ function drawVerticalLine(startY: number, endY: number, x: number) {
   ctx.stroke();
 }
 
-function drawImageScaled(img: HTMLImageElement, ctx: CanvasRenderingContext2D) {
+function drawImageScaled(img: HTMLImageElement, ctx: CanvasRenderingContext2D): ImageCoords {
   const canvas = ctx.canvas;
   const hRatio = canvas.width / img.width;
   const vRatio = canvas.height / img.height;
@@ -39,17 +55,17 @@ function drawImageScaled(img: HTMLImageElement, ctx: CanvasRenderingContext2D) {
 onMounted(() => {
   canvas = document.getElementById("canvas") as HTMLCanvasElement;
   ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-  // const drawImageOnCanvas = (e: Event) => {
-  //   ctx.drawImage(e.target as HTMLImageElement, 0, 0);
-  // }
-  canvas.width = 0.98*window.innerWidth;
-  canvas.height = 0.98*window.innerHeight;
+  canvas.width = 0.98 * window.innerWidth;
+  canvas.height = 0.98 * window.innerHeight;
+
+  ctx.font = "20px Arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
 })
 
 const drawImage = () => {
   const image = document.getElementById("mainImage") as HTMLImageElement;
-  const imageCoords = drawImageScaled(image, ctx);
-  console.log(imageCoords);
+ imageCoords = drawImageScaled(image, ctx);
 
   for (let i = 1; i < numRows; i++) {
     const yCoord = i * ctx.canvas.height / numRows;
@@ -60,6 +76,18 @@ const drawImage = () => {
     const xCoord = imageCoords.startX + j * (imageCoords.endX - imageCoords.startX) / numColumns;
     drawVerticalLine(imageCoords.startY, imageCoords.endY, xCoord);
   }
+
+  for (let i = 1; i < numRows + 1; i++) {
+    const yCoord = (i-0.5) * ctx.canvas.height / numRows;
+    ctx.textBaseline = "middle";
+    ctx.fillText(i.toString(), imageCoords.startX, yCoord)
+  }
+
+  for (let j = 1; j < numColumns + 1; j++) {
+    const xCoord = imageCoords.startX + (j-0.5) * (imageCoords.endX - imageCoords.startX) / numColumns;
+    ctx.textBaseline = "top";
+    ctx.fillText(j.toString(), xCoord, imageCoords.startY);
+  }
 }
 
 
@@ -68,7 +96,7 @@ const drawImage = () => {
 
 <template>
 <div>
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" @click="getMousePosition"></canvas>
   <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="drawImage" />
 </div>
 </template>
