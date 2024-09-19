@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import {onMounted, ref} from "vue";
+import jsonData from './data/data.json';
+import ModalComponent from "./components/ModalComponent.vue";
+
 interface ImageCoords {
   startX: number;
   startY: number;
@@ -7,12 +10,51 @@ interface ImageCoords {
   endY: number;
 }
 
+interface JsonData {
+  row: number;
+  col: number;
+  type: string;
+}
+
+interface JsonPostData extends JsonData {
+  name: string;
+  lore: string;
+  situation: string;
+  var1?: string;
+  var2?: string;
+  var3?: string;
+}
+
+interface JsonTextData extends JsonData {
+  text: string;
+}
+
+const cards: Map<number, Map<number, JsonPostData | JsonTextData>> = new Map();
+
+jsonData.forEach(jsonCardRaw => {
+  let colMap = cards.get(jsonCardRaw.row);
+
+  if (!colMap) {
+    colMap = new Map<number, JsonPostData | JsonTextData>();
+    cards.set(jsonCardRaw.row, colMap);
+  }
+
+  colMap.set(jsonCardRaw.col, jsonCardRaw);
+});
+
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let imageCoords: ImageCoords;
 
 const numColumns = 20;
 const numRows = 20;
+
+const showModal = ref(false);
+const activeText = ref<string>('');
+
+function getCard(row: number, col: number) {
+  return cards.get(row)?.get(col);
+}
 
 function getMousePosition(event: MouseEvent) {
   let x = event.clientX - imageCoords.startX;
@@ -24,7 +66,14 @@ function handleClick(event: MouseEvent) {
   const clickCoords = getMousePosition(event);
   const row = Math.ceil(clickCoords.y / (imageCoords.endY - imageCoords.startY) * numRows);
   const col = Math.ceil(clickCoords.x / (imageCoords.endX - imageCoords.startX) * numColumns);
-  console.log(row, col);
+
+  const card = getCard(row, col);
+  if (!card) {
+    return;
+  }
+
+  activeText.value = JSON.stringify(card);
+  showModal.value = true;
 }
 
 function drawHorizontalLine(startX: number, endX: number, y: number) {
@@ -70,7 +119,7 @@ onMounted(() => {
 
 const drawImage = () => {
   const image = document.getElementById("mainImage") as HTMLImageElement;
- imageCoords = drawImageScaled(image, ctx);
+  imageCoords = drawImageScaled(image, ctx);
 
   for (let i = 1; i < numRows; i++) {
     const yCoord = imageCoords.startY + i * (imageCoords.endY - imageCoords.startY) / numRows;
@@ -101,6 +150,7 @@ const drawImage = () => {
 
 <template>
 <div>
+  <modal-component :text="activeText" :show="showModal" @hidden="showModal = false"></modal-component>
   <canvas id="canvas" @click="handleClick"></canvas>
   <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="drawImage" />
 </div>
