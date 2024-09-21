@@ -139,8 +139,6 @@ const onImageLoad = () => {
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
 
-  console.log(ctx.font);
-
   for (let i = 1; i < numRows + 1; i++) {
     const yCoord = imageCoords.startY + (i-0.5) * (imageCoords.endY - imageCoords.startY) / numRows;
     ctx.textBaseline = "middle";
