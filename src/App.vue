@@ -117,10 +117,6 @@ onMounted(() => {
   ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   canvas.width = 0.98 * window.innerWidth;
   canvas.height = 0.98 * window.innerHeight;
-
-  ctx.font = "20px Arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
 })
 
 const onImageLoad = () => {
@@ -138,6 +134,12 @@ const onImageLoad = () => {
     const xCoord = imageCoords.startX + j * (imageCoords.endX - imageCoords.startX) / numColumns;
     drawVerticalLine(imageCoords.startY, imageCoords.endY, xCoord);
   }
+
+  ctx.font = `${Math.round(2 * circleRadius)}px Arial`;
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+
+  console.log(ctx.font);
 
   for (let i = 1; i < numRows + 1; i++) {
     const yCoord = imageCoords.startY + (i-0.5) * (imageCoords.endY - imageCoords.startY) / numRows;
