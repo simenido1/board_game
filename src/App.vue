@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import jsonData from './data/data.json';
 import ModalComponent from "./components/ModalComponent.vue";
 
@@ -23,6 +23,7 @@ interface JsonPostData extends JsonData {
   var1?: string;
   var2?: string;
   var3?: string;
+  image: string;
 }
 
 interface JsonTextData extends JsonData {
@@ -31,26 +32,31 @@ interface JsonTextData extends JsonData {
 
 const cards: Map<number, Map<number, JsonPostData | JsonTextData>> = new Map();
 
-jsonData.forEach(jsonCardRaw => {
-  let colMap = cards.get(jsonCardRaw.row);
-
-  if (!colMap) {
-    colMap = new Map<number, JsonPostData | JsonTextData>();
-    cards.set(jsonCardRaw.row, colMap);
-  }
-
-  colMap.set(jsonCardRaw.col, jsonCardRaw);
-});
-
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 let imageCoords: ImageCoords;
+let circleRadius: number;
 
 const numColumns = 20;
 const numRows = 20;
 
 const showModal = ref(false);
-const activeText = ref<string>('');
+const activeCard = ref<JsonPostData | JsonTextData>();
+
+function getCenterCoords(row: number, col: number) {
+  const x_center = imageCoords.startX + (imageCoords.endX - imageCoords.startX) * (col - 0.5) / numColumns;
+  const y_center = imageCoords.startY + (imageCoords.endY - imageCoords.startY) * (row - 0.5) / numRows;
+  return {x: x_center, y: y_center};
+}
+
+function drawCircle(row: number, col: number) {
+  const centerCoords = getCenterCoords(row, col);
+
+  ctx.beginPath();
+  ctx.arc(centerCoords.x, centerCoords.y, circleRadius, 0, 2 * Math.PI);
+  ctx.fillStyle = "white";
+  ctx.fill();
+}
 
 function getCard(row: number, col: number) {
   return cards.get(row)?.get(col);
@@ -72,7 +78,7 @@ function handleClick(event: MouseEvent) {
     return;
   }
 
-  activeText.value = JSON.stringify(card);
+  activeCard.value = card;
   showModal.value = true;
 }
 
@@ -111,15 +117,13 @@ onMounted(() => {
   ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   canvas.width = 0.98 * window.innerWidth;
   canvas.height = 0.98 * window.innerHeight;
-
-  ctx.font = "20px Arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
 })
 
-const drawImage = () => {
+const onImageLoad = () => {
   const image = document.getElementById("mainImage") as HTMLImageElement;
   imageCoords = drawImageScaled(image, ctx);
+
+  circleRadius = 0.2 * Math.min((imageCoords.endX - imageCoords.startX) / numColumns, (imageCoords.endY - imageCoords.startY) / numRows);
 
   for (let i = 1; i < numRows; i++) {
     const yCoord = imageCoords.startY + i * (imageCoords.endY - imageCoords.startY) / numRows;
@@ -130,6 +134,10 @@ const drawImage = () => {
     const xCoord = imageCoords.startX + j * (imageCoords.endX - imageCoords.startX) / numColumns;
     drawVerticalLine(imageCoords.startY, imageCoords.endY, xCoord);
   }
+
+  ctx.font = `${Math.round(2 * circleRadius)}px Arial`;
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
 
   for (let i = 1; i < numRows + 1; i++) {
     const yCoord = imageCoords.startY + (i-0.5) * (imageCoords.endY - imageCoords.startY) / numRows;
@@ -142,6 +150,19 @@ const drawImage = () => {
     ctx.textBaseline = "top";
     ctx.fillText(j.toString(), xCoord, imageCoords.startY);
   }
+
+  jsonData.forEach(jsonCardRaw => {
+    let colMap = cards.get(jsonCardRaw.row);
+
+    if (!colMap) {
+      colMap = new Map<number, JsonPostData | JsonTextData>();
+      cards.set(jsonCardRaw.row, colMap);
+    }
+
+    colMap.set(jsonCardRaw.col, jsonCardRaw);
+
+    drawCircle(jsonCardRaw.row, jsonCardRaw.col);
+  });
 }
 
 
@@ -150,9 +171,36 @@ const drawImage = () => {
 
 <template>
 <div>
-  <modal-component :text="activeText" :show="showModal" @hidden="showModal = false"></modal-component>
+  <modal-component :show="showModal" @hidden="showModal = false">
+    <div v-if="activeCard?.type === 'text'">
+      {{(activeCard as JsonTextData).text}}
+    </div>
+    <div v-if="activeCard?.type === 'post'">
+      <div class="card p-0" style="white-space: pre-wrap;">
+      <div class="card-header p-0">
+        {{ (activeCard as JsonPostData).lore }}
+      </div>
+      <div class="row">
+        <div class="col">
+          <img :src="`/board_game/${(activeCard as JsonPostData).image}`" class="w-100" alt="">
+          <h5 class="card-title text-center">{{ (activeCard as JsonPostData).name }}</h5>
+        </div>
+        <div class="col">
+            <div class="card-header p-0">
+              <strong>Ситуация:</strong> {{ (activeCard as JsonPostData).situation}}
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item ps-0" v-if="(activeCard as JsonPostData).var1">{{ (activeCard as JsonPostData).var1 }}</li>
+              <li class="list-group-item ps-0" v-if="(activeCard as JsonPostData).var2">{{ (activeCard as JsonPostData).var2 }}</li>
+              <li class="list-group-item ps-0" v-if="(activeCard as JsonPostData).var3">{{ (activeCard as JsonPostData).var3 }}</li>
+            </ul>
+        </div>
+      </div>
+      </div>
+    </div>
+  </modal-component>
   <canvas id="canvas" @click="handleClick"></canvas>
-  <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="drawImage" />
+  <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="onImageLoad" />
 </div>
 </template>
 
