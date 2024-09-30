@@ -55,7 +55,7 @@ function drawCircle(row: number, col: number, label_class: number = 0 ) {
 
   ctx.beginPath();
   ctx.arc(centerCoords.x, centerCoords.y, circleRadius, 0, 2 * Math.PI);
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.8;
   switch (label_class) {
     case 0:
       ctx.fillStyle = "white";
