@@ -14,6 +14,7 @@ interface JsonData {
   row: number;
   col: number;
   type: string;
+  level: number,
 }
 
 interface JsonPostData extends JsonData {
@@ -49,12 +50,44 @@ function getCenterCoords(row: number, col: number) {
   return {x: x_center, y: y_center};
 }
 
-function drawCircle(row: number, col: number) {
+function drawCircle(row: number, col: number, label_class: number = 0 ) {
   const centerCoords = getCenterCoords(row, col);
 
   ctx.beginPath();
   ctx.arc(centerCoords.x, centerCoords.y, circleRadius, 0, 2 * Math.PI);
-  ctx.fillStyle = "white";
+  ctx.globalAlpha = 0.5;
+  switch (label_class) {
+    case 0:
+      ctx.fillStyle = "white";
+      break;
+    case 1:
+      ctx.fillStyle = "grey";
+      break;  
+    case 2:
+      ctx.fillStyle = "brown";
+      break;
+    case 3:
+      ctx.fillStyle = "green";
+      break;
+    case 4:
+      ctx.fillStyle = "blue";
+      break;
+    case 5:
+      ctx.fillStyle = "purple";
+      break;
+    case 6:
+      ctx.fillStyle = "yellow";
+      break;
+    case 7:
+      ctx.fillStyle = "orange";
+      break;
+    case 8:
+      ctx.fillStyle = "red";
+      break;
+
+  }
+  ctx.strokeStyle = "black";
+  ctx.stroke();
   ctx.fill();
 }
 
@@ -161,7 +194,7 @@ const onImageLoad = () => {
 
     colMap.set(jsonCardRaw.col, jsonCardRaw);
 
-    drawCircle(jsonCardRaw.row, jsonCardRaw.col);
+    drawCircle(jsonCardRaw.row, jsonCardRaw.col, jsonCardRaw.level);
   });
 }
 
