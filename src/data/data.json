@@ -945,6 +945,70 @@
         "row": 12,
         "col": 19,
         "image": "Mihrap.jpg"
+    },
+    {
+        "id": 70,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 9,
+        "col": 10
+    },
+    {
+        "id": 71,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 10,
+        "col": 10
+    },
+    {
+        "id": 72,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 11,
+        "col": 10
+    },
+    {
+        "id": 73,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 12,
+        "col": 10
+    },
+    {
+        "id": 74,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 13,
+        "col": 11
+    },
+    {
+        "id": 75,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 14,
+        "col": 12
+    },
+    {
+        "id": 76,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 8,
+        "col": 11
+    },
+    {
+        "id": 77,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 7,
+        "col": 12
     }
 
 

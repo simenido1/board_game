@@ -84,6 +84,9 @@ function drawCircle(row: number, col: number, label_class: number = 0 ) {
     case 8:
       ctx.fillStyle = "red";
       break;
+    case 9:
+      ctx.fillStyle = "black";
+      break;
 
   }
   ctx.strokeStyle = "black";
