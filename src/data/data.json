@@ -1082,18 +1082,10 @@
         "level": 9,
         "text": "",
         "row": 8,
-        "col": 18
-    },  
-    {
-        "id": 89,
-        "type": "text",
-        "level": 9,
-        "text": "",
-        "row": 8,
         "col": 19
     },
     {
-        "id": 90,
+        "id": 89,
         "type": "text",
         "level": 9,
         "text": "",
