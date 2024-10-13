@@ -236,7 +236,7 @@ const onImageLoad = () => {
     </div>
   </modal-component>
   <canvas id="canvas" @click="handleClick"></canvas>
-  <img src="/painted.png" alt="" style="display: none" id="mainImage" @load="onImageLoad" />
+  <img src="/painted1.png" alt="" style="display: none" id="mainImage" @load="onImageLoad" />
 </div>
 </template>
 
