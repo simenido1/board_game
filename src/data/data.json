@@ -1009,6 +1009,22 @@
         "text": "",
         "row": 7,
         "col": 12
+    },
+    {
+        "id": 78,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 6,
+        "col": 13
+    },
+    {
+        "id": 79,
+        "type": "text",
+        "level": 9,
+        "text": "",
+        "row": 14,
+        "col": 13
     }
 
 
